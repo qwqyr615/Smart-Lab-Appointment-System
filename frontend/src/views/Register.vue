@@ -1,4 +1,3 @@
-px
 <template>
   <div class="register-container">
     <div class="register-box">
@@ -25,7 +24,7 @@ px
         <el-form-item>
           <el-input
             type="password"
-            size="lager"
+            size="large"
             v-model="form.confrimPasssword"
             placeholder="请确认密码"
             :prefix-icon="Lock"

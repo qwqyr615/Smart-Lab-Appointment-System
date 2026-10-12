@@ -63,6 +63,6 @@ import router from '@/router'
 import { Menu as IconMenu, House, Setting, User } from '@element-plus/icons-vue'
 
 const logout = () => {
-  router.push('/login/')
+  router.push('/login')
 }
 </script>

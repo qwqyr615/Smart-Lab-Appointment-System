@@ -1,2 +1,5 @@
 {
+    "python.defaultInterpreterPath": "e:\\code\\Agent\\Course\\lab-agent\\backend\\.venv\\Scripts\\python.exe",
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python-envs.defaultPackageManager": "ms-python.python:pip"
 }

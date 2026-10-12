@@ -1,4 +1,3 @@
-px
 <template>
   <div class="login-container">
     <div class="login-box">
@@ -16,7 +15,7 @@ px
         <el-form-item>
           <el-input
             type="password"
-            size="lager"
+            size="large"
             v-model="form.passsword"
             placeholder="请输入密码"
             :prefix-icon="Lock"
