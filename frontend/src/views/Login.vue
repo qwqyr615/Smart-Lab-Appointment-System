@@ -16,7 +16,7 @@
           <el-input
             type="password"
             size="large"
-            v-model="form.passsword"
+            v-model="form.password"
             placeholder="请输入密码"
             :prefix-icon="Lock"
             show-password
@@ -45,6 +45,9 @@ import { reactive, ref } from 'vue'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
+import { loginAPi } from '@/api/auth'
+import { useUser } from '@/utils/user'
+const { saveLoginData } = useUser()
 
 const form = reactive({
   username: '',
@@ -53,13 +56,20 @@ const form = reactive({
 
 const loadingValue = ref(false)
 
-const login = () => {
+const login = async () => {
   loadingValue.value = true
-  setTimeout(() => {
+  try {
+    const response = await loginAPi(form)
+    if (response.code === 200) {
+      saveLoginData(response.data)
+      ElMessage.success(response.message || '登录成功')
+      router.push('/manager/home')
+    }
+  } catch {
+    // request.js 的 Axios 响应拦截器里调用
+  } finally {
     loadingValue.value = false
-    ElMessage.success('登录成功')
-    router.push('/manager/home')
-  }, 2000)
+  }
 }
 </script>
 

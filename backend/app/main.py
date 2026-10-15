@@ -10,10 +10,25 @@ from app.common.exceptions import (
     validation_exeception_handler,
     global_exception_handler,
 )
+from starlette.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)  # 自动帮我们创建数据库表
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # 允许的前端源
+    allow_credentials=True,  # 允许前端携带 Authorization token
+    allow_methods=["*"],  # 允许所有请求方法 GET POST PUT DELETE OPTIONS
+    allow_headers=["*"],  # 允许所有请求头（包含Authorization）
+)
+
 app.include_router(api)
 
 # 注册异常处理器
