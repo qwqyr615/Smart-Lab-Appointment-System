@@ -13,3 +13,14 @@ export function loginAPi(data) {
     data
   })
 }
+
+/**
+ * 注册请求
+ */
+export function registerAPi(data) {
+  return request({
+    url: '/api/auth/register',
+    method: 'post',
+    data
+  })
+}

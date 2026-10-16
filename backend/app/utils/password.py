@@ -5,7 +5,9 @@ import bcrypt
 
 def hash_password(password: str) -> str:
     """对密码加密"""
-    return bcrypt.hashpw(password=password.encode("Utf-8"), salt=bcrypt.gensalt())
+    return bcrypt.hashpw(
+        password=password.encode("Utf-8"), salt=bcrypt.gensalt()
+    ).decode("utf-8")
 
 
 def verify_password(password: str, hashed_password: str) -> bool:
