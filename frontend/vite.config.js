@@ -6,13 +6,24 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
   },
+  server: {
+    proxy: {
+      // API 接口代理
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      },
+      // 静态文件代理（头像图片）
+      '/upload': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      }
+    }
+  }
 })

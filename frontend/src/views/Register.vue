@@ -38,7 +38,12 @@
           />
         </el-form-item>
         <div>
-          <el-button size="large" type="primary" style="width: 100%" :loading="loadingValue" @click="register"
+          <el-button
+            size="large"
+            type="primary"
+            style="width: 100%"
+            :loading="loadingValue"
+            @click="register"
             >注册</el-button
           >
           <div style="text-align: right; margin-top: 20px">
