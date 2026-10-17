@@ -10,7 +10,7 @@ from app.schemas.user import PasswordUpdateRequest, UserUpdateRequest
 from app.service import user_service
 from app.utils.password import verify_password
 from app.utils.jwt import create_access_token
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_admin, get_current_user
 from app.service.user_service import get_user_info
 
 router = APIRouter(prefix="/user", tags=["用户信息接口"])
@@ -41,3 +41,18 @@ def update_password(
     """修改当前用户密码"""
     user_service.update_password(data, user, db)
     return Response.success(message="密码修改成功")
+
+
+@router.get("/list")
+def get_user_list(
+    page: int = 1,
+    page_size: int = 10,
+    keywords: str | None = None,
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """分页查询"""
+    res = user_service.get_user_page_list(
+        page=page, page_size=page_size, db=db, keywords=keywords
+    )
+    return Response.success(data=res)

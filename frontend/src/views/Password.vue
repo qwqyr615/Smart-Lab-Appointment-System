@@ -43,7 +43,7 @@
   </div>
 </template>
 <script setup>
-import { updatePasswordApi } from '@/api/user'
+import { updatePassword } from '@/api/user'
 import router from '@/router'
 import { logout } from '@/utils/auth'
 import { ElMessage } from 'element-plus'
@@ -79,7 +79,7 @@ const handleSubmit = async () => {
   if (!valid) return
   submitting.value = true
   try {
-    const res = await updatePasswordApi({
+    const res = await updatePassword({
       old_password: form.oldPassword,
       new_password: form.newPassword
     })

@@ -19,6 +19,7 @@
           <el-dropdown @command="handleCommand">
             <div style="display: flex; align-items: center; cursor: pointer">
               <img
+                v-if="userInfo && userInfo.avatar"
                 :src="userInfo?.avatar"
                 alt=""
                 style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%"
@@ -50,7 +51,7 @@
               <el-icon><Setting /></el-icon>
               设备列表管理
             </el-menu-item>
-            <el-menu-item index="/manager/user">
+            <el-menu-item v-if="userInfo?.role === 'admin'" index="/manager/user">
               <el-icon><User /></el-icon>
               用户管理
             </el-menu-item>

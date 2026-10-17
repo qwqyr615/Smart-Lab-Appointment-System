@@ -24,10 +24,21 @@ export function updateUserInfo(data) {
 /**
  * 修改密码
  */
-export function updatePasswordApi(data) {
+export function updatePassword(data) {
   return request({
     url: '/api/user/password',
     method: 'put',
     data
+  })
+}
+
+/**
+ * 分页模糊查询用户列表
+ */
+export function getUserPageList(params) {
+  return request({
+    url: '/api/user/list',
+    method: 'get',
+    params
   })
 }
