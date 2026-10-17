@@ -70,7 +70,7 @@ const form = reactive({
 const rules = {
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
   email: [{ type: 'email', message: '邮箱格式错误', trigger: 'blur' }],
-  phone: [{ pattern: /^1[3-9]\d{9}$/, trigger: 'blur' }]
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '手机号格式错误', trigger: 'blur' }]
 }
 
 const roleLabel = computed(() => {
