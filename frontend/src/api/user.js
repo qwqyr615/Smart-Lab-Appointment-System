@@ -1,12 +1,22 @@
 import request from '@/utils/request'
+
+/**
+ *data
+请求体（body）
+POST、PUT、PATCH、DELETE
+
+params
+URL 查询参数（query string）
+GET、DELETE
+ */
+
 /**
  * 获取当前登录用户
  */
-export function getUserInfo(data) {
+export function getUserInfo() {
   return request({
     url: '/api/user/me',
-    method: 'get',
-    data
+    method: 'get'
   })
 }
 
@@ -40,5 +50,37 @@ export function getUserPageList(params) {
     url: '/api/user/list',
     method: 'get',
     params
+  })
+}
+
+/**
+ * 新增用户
+ */
+export function createUser(data) {
+  return request({
+    url: '/api/user',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 更新用户
+ */
+export function updateUser(userId, data) {
+  return request({
+    url: `/api/user/${userId}`,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 删除用户
+ */
+export function deleteUser(userId) {
+  return request({
+    url: `/api/user/${userId}`,
+    method: 'delete'
   })
 }
