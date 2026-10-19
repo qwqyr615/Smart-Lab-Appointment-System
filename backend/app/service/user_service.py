@@ -2,14 +2,13 @@ from operator import or_
 
 from app.common.exceptions import BusinessException
 from app.models.user import User
+from app.common.response import PageResponse
 from app.schemas.user import (
-    PageResponse,
     PasswordUpdateRequest,
     UserCreateRequest,
     UserResponse,
     UserUpdateRequest,
 )
-from app.common.response import Response
 from sqlalchemy.orm import Session
 
 from app.utils.password import verify_password, hash_password
@@ -20,7 +19,9 @@ def get_user_info(user: User) -> UserResponse:
 
 
 def update_user_info(data: UserUpdateRequest, user: User, db: Session):
-    user_dict = data.model_dump(exclude_none=True)  # pydatic对象转换成字典,
+    user_dict = data.model_dump(
+        exclude_none=True, exclude={"role", "status"}
+    )  # pydatic对象转换成字典
     for field, value in user_dict.items():
         setattr(user, field, value)
     db.commit()

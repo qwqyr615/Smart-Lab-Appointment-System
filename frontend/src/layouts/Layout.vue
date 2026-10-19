@@ -43,7 +43,7 @@
               <el-icon><icon-menu /></el-icon>
               系统首页
             </el-menu-item>
-            <el-menu-item index="/manager/lab">
+            <el-menu-item v-if="userInfo?.role === 'admin'" index="/manager/lab">
               <el-icon><House /></el-icon>
               实验室管理
             </el-menu-item>

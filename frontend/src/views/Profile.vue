@@ -52,7 +52,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { getUserInfo, updateUserInfo } from '@/api/user'
 import { useUser } from '@/utils/user'
 import { ElMessage } from 'element-plus'
-import { uploadFileApi } from '@/api/file'
+import { uploadFile } from '@/api/file'
 const ruleFormRef = ref()
 const loadingValue = ref(false)
 const submitting = ref(false)
@@ -91,7 +91,7 @@ const beforeAvatarUpload = (file) => {
 }
 
 const handleFileUpload = async ({ file }) => {
-  const res = await uploadFileApi(file)
+  const res = await uploadFile(file)
   form.avatar = res.data?.url
   return res
 }

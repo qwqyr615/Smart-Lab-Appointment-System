@@ -41,10 +41,3 @@ class UserUpdateRequest(BaseModel):
 class PasswordUpdateRequest(BaseModel):
     old_password: str
     new_password: str
-
-
-class PageResponse(BaseModel):
-    """分页返回的结果"""
-
-    list: Any = []
-    total: int = 0
