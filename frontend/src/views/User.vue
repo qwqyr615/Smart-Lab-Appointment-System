@@ -129,7 +129,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 const params = reactive({
   page: 1,
-  pageSize: 3,
+  pageSize: 10,
   keywords: ''
 })
 

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import UPLOAD_DIR
 from app.models.user import User
 from app.models.lab import Lab
+from app.models.equipment import Equipment
 from app.database import Base, engine
 from app.api import api
 from app.common.exceptions import (
