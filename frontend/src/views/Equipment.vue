@@ -19,12 +19,7 @@
           style="width: 200px; margin-right: 8px"
           clearable
         >
-          <el-option
-            v-for="item in options"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          />
+          <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
         <el-button type="success" :icon="Plus" @click="handleCreate">新增</el-button>
@@ -51,14 +46,14 @@
         </el-table-column>
         <el-table-column prop="spec" label="型号规格" />
         <el-table-column prop="quantity" label="数量" width="80" />
-        <el-table-column prop="status" equipmentel="状态" width="90">
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'danger'">
               {{ row.status === 1 ? '正常' : '维修' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column equipmentel="操作" width="160">
+        <el-table-column label="操作" width="160">
           <template #default="{ row }">
             <el-button type="primary" text bg @click="handleEdit(row)">编辑</el-button>
             <el-button type="danger" text bg @click="handleDelete(row)">删除</el-button>
@@ -83,15 +78,11 @@
         ref="ruleFormRef"
         :rules="rules"
         :model="form"
-        equipmentel-width="90px"
+        label-width="100px"
         style="width: 100%; padding-right: 30px; padding-top: 16px"
       >
-        <el-form-item label="所属实验室">
-          <el-select
-            v-model="form.lab_id"
-            placeholder="请选择实验室"
-            style="width: 200px; margin-right: 8px"
-          >
+        <el-form-item label="所属实验室" prop="lab_id">
+          <el-select v-model="form.lab_id" placeholder="请选择实验室" style="width: 100%">
             <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
@@ -101,7 +92,7 @@
         <el-form-item label="说明">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入说明" />
         </el-form-item>
-        <el-form-item equipmentel="图片">
+        <el-form-item label="图片">
           <el-upload
             class="avatar-uploader"
             :http-request="handleFileUpload"
@@ -143,7 +134,7 @@ import {
   deleteEquipment
 } from '@/api/equipment'
 import { uploadFile } from '@/api/file'
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getLabPageList } from '@/api/lab'
 
@@ -180,12 +171,9 @@ const rules = {
 }
 
 const handleFileUpload = async ({ file }) => {
-  try {
-    const res = await uploadFile(file)
-    if (res.code == 200) {
-      form.img = res.data?.url
-    }
-  } catch {}
+  const res = await uploadFile(file)
+  form.img = res.data?.url ?? ''
+  return res
 }
 
 const beforeAvatarUpload = (file) => {
@@ -217,28 +205,29 @@ const resetForm = () => {
 const handleCreate = () => {
   resetForm()
   dialogVisible.value = true
+  nextTick(() => ruleFormRef.value?.clearValidate())
 }
 
 const handleEdit = (row) => {
   resetForm()
   Object.assign(form, {
-    id: row.lab_id,
+    id: row.id,
+    lab_id: row.lab_id,
     name: row.name,
-    location: row.location,
-    capacity: row.capacity,
-    open_time: row.open_time,
-    close_time: row.close_time,
-    description: row.description,
-    img: row.img,
+    description: row.description ?? '',
+    img: row.img ?? '',
+    spec: row.spec ?? '',
+    quantity: row.quantity,
     status: row.status
   })
   dialogVisible.value = true
+  nextTick(() => ruleFormRef.value?.clearValidate())
 }
 
-// 删除实验室
+// 删除设备
 const handleDelete = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除实验室 ${row.name} ？`, '确认删除', {
+    await ElMessageBox.confirm(`确认删除设备 ${row.name} ？`, '确认删除', {
       type: 'warning'
     })
   } catch {
@@ -247,20 +236,21 @@ const handleDelete = async (row) => {
 
   const res = await deleteEquipment(row.id)
   if (res.code === 200) {
-    ElMessage.success('删除实验室成功')
+    ElMessage.success('删除设备成功')
     const lastPage = Math.max(1, Math.ceil((total.value - 1) / params.pageSize))
     params.page = Math.min(params.page, lastPage)
     await load()
   }
 }
 
-// 保存实验室
+// 保存设备
 const handleSave = async () => {
   const valid = await ruleFormRef.value.validate().catch(() => false)
   if (!valid) return
   formLoading.value = true
   try {
-    const res = form.id ? await updateEquipment(form.id, form) : await createEquipment(form)
+    const { id, ...data } = form
+    const res = id ? await updateEquipment(id, data) : await createEquipment(data)
     if (res.code === 200) {
       dialogVisible.value = false
       ElMessage.success('操作成功')
@@ -296,10 +286,19 @@ const handleSearch = () => {
 }
 
 const loadLabs = async () => {
-  const res = await getLabPageList({ page: 1, page_size: 100 })
-  if (res.code === 200) {
-    options.value = res.data?.list
+  const pageSize = 100
+  const labs = []
+  let page = 1
+
+  while (true) {
+    const res = await getLabPageList({ page, page_size: pageSize })
+    const items = res.data?.list ?? []
+    labs.push(...items)
+    if (items.length < pageSize || labs.length >= (res.data?.total ?? Infinity)) break
+    page += 1
   }
+
+  options.value = labs
 }
 
 onMounted(() => {
@@ -308,14 +307,14 @@ onMounted(() => {
 })
 </script>
 
-<style scope>
+<style scoped>
 .avatar-uploader .avatar {
   width: 130px;
   height: 130px;
   display: block;
   object-fit: cover;
 }
-.avatar-uploader .el-upload {
+.avatar-uploader :deep(.el-upload) {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
   cursor: pointer;
@@ -323,7 +322,7 @@ onMounted(() => {
   overflow: hidden;
   transition: var(--el-transition-duration-fast);
 }
-.avatar-uploader .el-upload:hover {
+.avatar-uploader :deep(.el-upload:hover) {
   border-color: var(--el-color-primary);
 }
 .el-icon.avatar-uploader-icon {

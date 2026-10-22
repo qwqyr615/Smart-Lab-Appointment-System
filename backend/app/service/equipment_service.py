@@ -40,9 +40,17 @@ def get_equipment_page_list(
 
 def create_equipment(data: EquipmentCreateRequest, db: Session):
     """新增"""
-    exist = db.query(Equipment).filter(Equipment.name == data.name).first()
+    lab = db.query(Lab).filter(Lab.id == data.lab_id).first()
+    if not lab:
+        raise BusinessException(message="实验室不存在")
+
+    exist = (
+        db.query(Equipment)
+        .filter(Equipment.lab_id == data.lab_id, Equipment.name == data.name)
+        .first()
+    )
     if exist:
-        raise BusinessException(message="实验室设备已存在")
+        raise BusinessException(message="同一个实验室不能存在同名的设备")
 
     equipment = Equipment(**data.model_dump())
     db.add(equipment)

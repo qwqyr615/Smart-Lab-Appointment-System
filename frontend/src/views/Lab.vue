@@ -68,6 +68,7 @@
         />
       </div>
     </el-card>
+
     <el-dialog v-model="dialogVisible" :title="form.id ? '编辑' : '新增'" width="520">
       <el-form
         ref="ruleFormRef"
