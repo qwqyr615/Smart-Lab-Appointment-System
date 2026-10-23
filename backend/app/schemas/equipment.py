@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EquipmentResponse(BaseModel):
@@ -23,7 +23,7 @@ class EquipmentCreateRequest(BaseModel):
     description: str | None = None
     img: str | None = None
     spec: str | None = None
-    quantity: int = 1
+    quantity: int = Field(default=1, ge=1)
     status: int = 1
 
 
@@ -33,5 +33,5 @@ class EquipmentUpdateRequest(BaseModel):
     description: str | None = None
     img: str | None = None
     spec: str | None = None
-    quantity: int | None = None
+    quantity: int | None = Field(default=None, ge=1)
     status: int | None = None
