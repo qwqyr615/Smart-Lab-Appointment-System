@@ -5,7 +5,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.equipment import EquipmentUpdateRequest, EquipmentCreateRequest
 from app.service import equipment_service
-from app.dependencies.auth import get_current_admin
+from app.dependencies.auth import get_current_admin, get_current_user
 
 router = APIRouter(prefix="/equipment", tags=["实验室设备信息接口"])
 
@@ -16,7 +16,7 @@ def get_equipment_list(
     page_size: int = 10,
     keywords: str | None = None,
     lab_id: int | None = None,
-    current_user: User = Depends(get_current_admin),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     res = equipment_service.get_equipment_page_list(

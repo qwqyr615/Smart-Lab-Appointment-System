@@ -11,13 +11,19 @@ from sqlalchemy.orm import Session
 
 
 def get_lab_page_list(
-    page: int, page_size: int, db: Session, keywords: str | None = None
+    page: int,
+    page_size: int,
+    db: Session,
+    keywords: str | None = None,
+    status: int | None = None,
 ):
     query = db.query(Lab)
     if keywords:
         query = query.filter(
             or_(Lab.name.ilike(f"%{keywords}%"), Lab.location.ilike(f"%{keywords}%"))
         )
+    if status is not None:
+        query = query.filter(Lab.status == status)
     total = query.count()
     items = (
         query.order_by(Lab.id.desc())
@@ -28,6 +34,16 @@ def get_lab_page_list(
     return PageResponse(
         list=[LabResponse.model_validate(item) for item in items], total=total
     )
+
+
+def get_lab(lab_id: int, db: Session, status: int | None = None):
+    query = db.query(Lab).filter(Lab.id == lab_id)
+    if status is not None:
+        query = query.filter(Lab.status == status)
+    lab = query.first()
+    if not lab:
+        raise BusinessException(message="实验室不存在")
+    return LabResponse.model_validate(lab)
 
 
 """管理员增删改查试验室"""
