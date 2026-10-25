@@ -43,6 +43,10 @@
               <el-icon><icon-menu /></el-icon>
               系统首页
             </el-menu-item>
+            <el-menu-item index="/manager/ai-chat">
+              <el-icon><ChatDotRound /></el-icon>
+              <span>AI智能助手</span>
+            </el-menu-item>
             <el-menu-item v-if="userInfo?.role === 'student'" index="/manager/lablist">
               <el-icon><OfficeBuilding /></el-icon>
               <span>实验室列表</span>
@@ -52,7 +56,7 @@
               <span>我的预约</span>
             </el-menu-item>
             <el-menu-item index="/manager/audit-reservation" v-if="userInfo?.role === 'admin'">
-              <el-icon><DocumentChecked /></el-icon>
+              <el-icon><Document /></el-icon>
               <span>预约审核</span>
             </el-menu-item>
             <el-menu-item v-if="userInfo?.role === 'admin'" index="/manager/lab">
@@ -88,7 +92,8 @@ import {
   User,
   OfficeBuilding,
   Tickets,
-  DocumentChecked
+  Document,
+  ChatDotRound
 } from '@element-plus/icons-vue'
 
 const { userInfo } = useUser()
