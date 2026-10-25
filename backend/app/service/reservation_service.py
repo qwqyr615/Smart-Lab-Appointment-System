@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from datetime import datetime, time
 
 from sqlalchemy.orm import Session
@@ -9,6 +11,9 @@ from app.models.lab import Lab
 from app.models.reservation import Reservation
 from app.models.user import User
 from app.schemas.reservation import ReservationCreateRequest, ReservationResponse
+from app.database import SessionLocal
+
+logger = logging.getLogger(__name__)
 
 
 def create_reservation(db: Session, current_user: User, data: ReservationCreateRequest):
@@ -163,3 +168,30 @@ def audit_reservation(db: Session, reservation_id: int, status: int):
         raise BusinessException(message="当前状态不支持审核")
     item.status = status
     db.commit()
+
+
+def expire_pending_reservations():
+    db = SessionLocal()
+    try:
+        now = datetime.now()
+        today = now.strftime("%Y-%m-%d")
+        now_time = now.strftime("%H:%M")
+        items = db.query(Reservation).filter(Reservation.status == 0).all()
+        changed = False
+        for item in items:
+            if item.date < today or (item.date == today and item.end_time <= now_time):
+                item.status = 3
+                changed = True
+        if changed:
+            db.commit()
+    finally:
+        db.close()
+
+
+async def run_expire_scan():
+    while True:
+        try:
+            expire_pending_reservations()
+        except Exception:
+            logger.exception("扫描过期待审核预约失败，将在下一轮重试")
+        await asyncio.sleep(60)

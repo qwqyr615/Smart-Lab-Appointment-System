@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
@@ -17,9 +20,21 @@ from app.common.exceptions import (
 )
 from starlette.middleware.cors import CORSMiddleware
 
+from app.service import reservation_service
+
 Base.metadata.create_all(bind=engine)  # 自动帮我们创建数据库表
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 启动项目开始一步的扫描任务
+    task = asyncio.create_task(reservation_service.run_expire_scan())
+    yield
+    # 关闭项目同时取消异步任务
+    task.cancel()
+
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:5173",
