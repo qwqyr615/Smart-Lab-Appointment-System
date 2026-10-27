@@ -45,3 +45,6 @@ pnpm-debug.log*
 
 # uplooad
 *.png
+
+# chroma
+*.bin
