@@ -98,6 +98,12 @@ const handleSend = async () => {
       messages.value.push(res.data)
       scrollToBottom()
     }
+  } catch (error) {
+    const content = error.code === 'ECONNABORTED'
+      ? '查询超时，请稍后重试。'
+      : error.message || '查询失败，请稍后重试。'
+    messages.value.push({ role: 'error', content })
+    scrollToBottom()
   } finally {
     loading.value = false
   }

@@ -11,6 +11,10 @@ router = APIRouter(prefix="/ai", tags=["AI相关的API"])
 
 
 @router.post("/chat")
-def chat(data: ChatRequest, current_user: User = Depends(get_current_user)):
-    content = ai_service.chat(data)
+def chat(
+    data: ChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    content = ai_service.chat(data, db)
     return Response.success(data=ChatMessage(role="assistant", content=content))

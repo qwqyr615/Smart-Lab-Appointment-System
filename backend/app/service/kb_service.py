@@ -11,7 +11,8 @@ CHROMA_DIR = BASE_DIR / "data" / "chroma"
 _collection = None
 
 _embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="BAAI/bge-small-zh-v1.5"
+    model_name="BAAI/bge-small-zh-v1.5",
+    local_files_only=True,  # 跳过联网检查
 )
 
 
