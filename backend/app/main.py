@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -20,18 +21,28 @@ from app.common.exceptions import (
 )
 from starlette.middleware.cors import CORSMiddleware
 
-from app.service import reservation_service
+from app.service import kb_service, reservation_service
 
 Base.metadata.create_all(bind=engine)  # 自动帮我们创建数据库表
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # 知识库模型加载可能较慢，不能阻塞登录等普通接口的启动。
+    async def warmup_kb():
+        try:
+            await asyncio.to_thread(kb_service.warmup)
+        except Exception:
+            logging.exception("知识库预热失败")
+
+    warmup_task = asyncio.create_task(warmup_kb())
+
     # 启动项目开始一步的扫描任务
     task = asyncio.create_task(reservation_service.run_expire_scan())
     yield
     # 关闭项目同时取消异步任务
     task.cancel()
+    warmup_task.cancel()
 
 
 app = FastAPI(lifespan=lifespan)

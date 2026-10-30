@@ -5,7 +5,7 @@ from app.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.ai import ChatMessage, ChatRequest
-from app.service import ai_service
+from app.service import agent_service, ai_service
 
 router = APIRouter(prefix="/ai", tags=["AI相关的API"])
 
@@ -16,5 +16,5 @@ def chat(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    content = ai_service.chat(data, db)
+    content = agent_service.run_agent(db, current_user, data)
     return Response.success(data=ChatMessage(role="assistant", content=content))

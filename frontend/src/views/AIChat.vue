@@ -66,7 +66,7 @@ const messages = ref([
   {
     role: 'assistant',
     content:
-      '您好，我是实验室助手。你可以向我提问怎么预约、取消。具体实验室信息请到【实验室列表】页查看'
+      '你好，我是实验室预约助手。可以问规则和开放实验室，也可以说「帮我预约明天下午的实验室」，确认后我会帮你提交。'
   }
 ])
 const input = ref('')
@@ -99,9 +99,10 @@ const handleSend = async () => {
       scrollToBottom()
     }
   } catch (error) {
-    const content = error.code === 'ECONNABORTED'
-      ? '查询超时，请稍后重试。'
-      : error.message || '查询失败，请稍后重试。'
+    const content =
+      error.code === 'ECONNABORTED'
+        ? '查询超时，请稍后重试。'
+        : error.message || '查询失败，请稍后重试。'
     messages.value.push({ role: 'error', content })
     scrollToBottom()
   } finally {
