@@ -48,3 +48,6 @@ pnpm-debug.log*
 
 # chroma
 *.bin
+
+# ai
+.zcode/
