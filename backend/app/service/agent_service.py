@@ -1,3 +1,4 @@
+import json
 import logging
 
 from collections.abc import AsyncIterator
@@ -64,14 +65,22 @@ def _chunk_text(chunk: Any) -> str:
     return str(content) if content is not None else ""
 
 
-def _tool_output_preview(output: Any, limit: int = 200) -> str:
-    """把工具结果收成短预览，避免整段 JSON 刷到前端过程区。"""
+def _tool_ok(output: Any) -> bool | None:
+    """工具失败时不抛异常，而是返回 {"ok": false, "error": ...}，只能看内容判断。
+    取不到 ok 字段时返回 None，前端按成功处理。
+    """
     # LangGraph 里工具结果经常是 ToolMessage，正文在 .content
     if isinstance(output, ToolMessage):
         output = output.content
-    text = output if isinstance(output, str) else str(output)
-    # 太长就截断，末尾加省略号
-    return text if len(text) <= limit else text[:limit] + "…"
+    if not isinstance(output, str):
+        return None
+    try:
+        parsed = json.loads(output)
+    except (TypeError, ValueError):
+        return None
+    if isinstance(parsed, dict) and "ok" in parsed:
+        return bool(parsed["ok"])
+    return None
 
 
 def _build_history(data: ChatRequest) -> list:
@@ -120,7 +129,7 @@ async def stream_agent(
     db: Session, current_user: User, data: ChatRequest
 ) -> AsyncIterator[dict]:
     """生成器：边跑 Agent 边 yield 事件，供 SSE 推给前端。
-    事件类型：status / tool_start / tool_end / token / done / error
+    事件类型：status / tool_start / tool_end(ok) / token / done / error
     """
     try:
         history = _build_history(data)
@@ -151,10 +160,8 @@ async def stream_agent(
                     "type": "tool_end",
                     "name": name,
                     "label": TOOL_LABELS.get(name, name),
-                    # 只给预览；完整结果仍在图内部 messages 里给模型用
-                    "preview": _tool_output_preview(
-                        (event.get("data") or {}).get("output")
-                    ),
+                    # 工具把业务错误收成了 {"ok": false}，前端要靠它区分成功/失败
+                    "ok": _tool_ok((event.get("data") or {}).get("output")),
                 }
             elif kind == "on_chat_model_stream":
                 # 只收 agent 节点的字；其它内部节点的噪声丢掉
